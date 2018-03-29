@@ -12,7 +12,6 @@
 
 <body>
     <main id="app" class="app">
-
         <div class="app__half">
             <h1 class="app__title">Progress App!</h1>
             <div class="progressBar" id="progressBar">
@@ -26,11 +25,21 @@
                     <div class="controls__label">Value</div>
                 </div>
                 <div class="controls__row">
-                    <div class="controls__switch"></div>
+                    <div class="controls__switch">
+                        <label class="switch switch--round">
+                            <input type="checkbox" class="switch__input" id="switch-animate">
+                            <span class="switch__slider"></span>
+                        </label>
+                    </div>
                     <div class="controls__label">Animate</div>
                 </div>
                 <div class="controls__row">
-                    <div class="controls__switch"></div>
+                    <div class="controls__switch">
+                        <label class="switch switch--round">
+                            <input type="checkbox" class="switch__input" id="switch-hide">
+                            <span class="switch__slider"></span>
+                        </label>
+                    </div>
                     <div class="controls__label">Hide</div>
                 </div>
             </div>
