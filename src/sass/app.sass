@@ -3,7 +3,7 @@ body
   max-width: 750px
   min-width: 320px
   line-height: 1.6
-
+  font-size: 16px
 .app
   height: 100vh
   display: flex
@@ -26,7 +26,22 @@ body
 .controls
   display: flex
   justify-content: center
-  align-items: center
+  align-items: flex-start
   flex-direction: column
   text-align: center
+  &__value
+    border: 1px solid #000
+    height: $switch-height
+    line-height: $switch-height
+    border-radius: 20px
+    margin-right: .5rem
+    width: $switch-width
+  &__row
+    display: flex
+    align-items: center
+    margin-bottom: 1rem
+  &__switch
+    margin-right: .5rem
+  &__label
+    line-height: 1rem
     
