@@ -32,12 +32,18 @@ body
   flex-direction: column
   text-align: center
   &__value
-    border: 1px solid #000
+    border: 2px solid $gray
     height: $switch-height
     line-height: $switch-height
     border-radius: 20px
     margin-right: .5rem
     width: $switch-width
+    background: transparent
+    text-align: center
+    font-size: 1rem
+    &:focus
+      border-color: $green
+      outline: 0
   &__row
     display: flex
     align-items: center
