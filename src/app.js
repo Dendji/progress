@@ -1,8 +1,12 @@
 import './sass/style.sass';
+import Progress from './components/Progress';
 
 document.addEventListener('DOMContentLoaded', app);
 
 function app() {
+  let progress = new Progress('container');
+  console.log(progress);
+
   let inputValue = document.getElementById('input-value');
   let switchAnimate = document.getElementById('switch-animate');
   let switchHide = document.getElementById('switch-hide');
