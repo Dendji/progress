@@ -7,12 +7,15 @@ const required = () => {
 
 class Progress {
   // initializing properties in constructor
+  // if containerId is empty then throw an Error
   constructor(containerId = required(), value = 10, mode = 'normal') {
     this.containerId = containerId;
     this.value = value;
     this.mode = mode;
     this.radius = 90;
     this.circleLength = this.radius * Math.PI * 2;
+    this.svgId = 'progress';
+    this.outerCircleClass = 'progress-bar__circle--outer';
 
     this.init();
   }
@@ -45,11 +48,13 @@ class Progress {
     }
   }
   // start and stop animation method
+  getCircleDOM() {
+    const { containerId, outerCircleClass } = this;
+    return document.querySelector(`#${containerId} .${outerCircleClass}`);
+  }
   animate(state) {
     const { containerId } = this;
-    const circle = document.querySelector(
-      `#${containerId} .progress-bar__circle--outer`
-    );
+    const circle = this.getCircleDOM();
 
     if (state) {
       animateRequest(function(timePassed) {
@@ -68,18 +73,15 @@ class Progress {
     svg.style.display = 'none';
   }
   setValue(value = 0) {
-    console.info(`Value: ${value}`);
+    const circle = this.getCircleDOM();
+    const { radius, circleLength } = this;
+    // get percentage from circle length
+    const percentage = (100 - value) / 100 * circleLength;
+
+    circle.style.strokeDashoffset = percentage;
+
+    // change state
     this.value = value;
-    let { containerId } = this;
-    const circle = document.querySelector(
-      `#${containerId} .progress-bar__circle--outer`
-    );
-    const radius = this.radius;
-    const circleLength = this.circleLength;
-
-    let pct = (100 - value) / 100 * circleLength;
-
-    circle.style.strokeDashoffset = pct;
   }
   createCircle(type) {
     let circle = document.createElementNS(svgNS, 'circle');

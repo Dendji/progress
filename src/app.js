@@ -20,13 +20,6 @@ function app() {
   inputValue.oninput = handleValue;
 
   switchAnimate.onchange = function(event) {
-    // this.checked
-    //   ? document
-    //       .getElementById('outerCircle')
-    //       .classList.add('progress-bar__circle--animated')
-    //   : document
-    //       .getElementById('outerCircle')
-    //       .classList.remove('progress-bar__circle--animated');
     this.checked ? progress.setMod('animated') : progress.setMod('normal');
     console.info(`switch animate is ${this.checked}`);
   };
