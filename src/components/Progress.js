@@ -48,14 +48,18 @@ class Progress {
     );
 
     if (state) {
-      circle.classList.add('progress-bar__circle--animated');
-      circle.style.strokeDasharray = 300;
+      animateRequest(function(timePassed) {
+        circle.style.transform = `rotate(${timePassed / 5}deg)`;
+      });
     } else {
-      circle.classList.remove('progress-bar__circle--animated');
-      circle.style.strokeDasharray = null;
+      animateRequest(function(timePassed) {
+        circle.style.transform = `rotate(${timePassed / 5}deg)`;
+      }, 0);
     }
   }
   hide() {
+    const { containerId } = this;
+    const svg = document.querySelector(`#${containerId} svg`);
     svg.style.display = 'none';
   }
   setValue(value = 0) {
@@ -115,5 +119,19 @@ class Progress {
     return svg;
   }
 }
+function animateRequest(draw, duration) {
+  var start = performance.now();
 
+  requestAnimationFrame(function animate(time) {
+    var timePassed = time - start;
+
+    if (timePassed > duration) timePassed = duration;
+
+    draw(timePassed);
+
+    // if (timePassed < duration) {
+    requestAnimationFrame(animate);
+    // }
+  });
+}
 export default Progress;
