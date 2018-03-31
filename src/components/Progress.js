@@ -32,25 +32,31 @@ class Progress {
         this.animate(false);
         break;
       case 'animated':
-        svg.style.display = 'block';
         this.animate(true);
         break;
       case 'hidden':
-        svg.style.display = 'none';
-        this.animate(false);
+        this.hide();
         break;
     }
     console.info(`Mode: ${mode}. Animated: ${animated} `);
   }
+
   animate(state) {
     const { containerId } = this;
     const circle = document.querySelector(
       `#${containerId} .progress-bar__circle--outer`
     );
 
-    state
-      ? circle.classList.add('progress-bar__circle--animated')
-      : circle.classList.remove('progress-bar__circle--animated');
+    if (state) {
+      circle.classList.add('progress-bar__circle--animated');
+      circle.style.strokeDasharray = 300;
+    } else {
+      circle.classList.remove('progress-bar__circle--animated');
+      circle.style.strokeDasharray = null;
+    }
+  }
+  hide() {
+    svg.style.display = 'none';
   }
   setValue(value = 0) {
     console.info(`Value: ${value}`);
