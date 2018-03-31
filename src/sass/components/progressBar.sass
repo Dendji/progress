@@ -1,11 +1,18 @@
+@keyframes anim
+  0%
+    stroke-dashoffset: 0
+  100%
+    stroke-dashoffset: 568
 .progress-bar
   &__circle
     stroke-dashoffset: 0
     transition: stroke-dashoffset .25s ease
-    stroke: $blue-green
     stroke: $gray
     stroke-width: 20px
-    r: $bar-radius
-  &__circle--outer
-    stroke: $yellow
-    stroke-linecap: round
+    // r: $bar-radius
+    &--outer
+      stroke: $yellow
+      stroke-linecap: round
+      stroke-dasharray: 300
+    &--animated
+      animation: anim 1s linear infinite
