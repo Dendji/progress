@@ -14,6 +14,7 @@ class Progress {
     this.init();
   }
   init() {
+    // creating progress bar and appending to DOM
     let container = document.getElementById(this.containerId);
     let svg = this.createSvg();
     let innerCircle = this.createCircle('inner');
@@ -23,6 +24,7 @@ class Progress {
     svg.appendChild(outerCircle);
     container.appendChild(svg);
   }
+  // set mode method
   setMod(mode = 'normal', animated = '') {
     const { containerId } = this;
     const svg = document.querySelector(`#${containerId} svg`);
@@ -38,9 +40,8 @@ class Progress {
         this.hide();
         break;
     }
-    console.info(`Mode: ${mode}. Animated: ${animated} `);
   }
-
+  // start and stop animation method
   animate(state) {
     const { containerId } = this;
     const circle = document.querySelector(
@@ -57,6 +58,7 @@ class Progress {
       }, 0);
     }
   }
+  // hide progress bar method
   hide() {
     const { containerId } = this;
     const svg = document.querySelector(`#${containerId} svg`);
@@ -80,6 +82,13 @@ class Progress {
     let circle = document.createElementNS(svgNS, 'circle');
     let { value, radius, circleLength } = this;
     let pct = (100 - value) / 100 * circleLength;
+
+    circle.style.strokeDashoffset = 0;
+    circle.style.transition = 'stroke-dashoffset .25s ease';
+    circle.style.stroke = '#cccccc';
+    circle.style.strokeWidth = '20px';
+    circle.style.transformOrigin = 'center center';
+
     circle.setAttributeNS(null, 'cx', 100);
     circle.setAttributeNS(null, 'cy', 100);
     circle.setAttributeNS(null, 'r', radius);
@@ -101,6 +110,8 @@ class Progress {
           'class',
           'progress-bar__circle progress-bar__circle--outer'
         );
+        circle.style.stroke = '#ffdb4d';
+        circle.style.strokeLinecap = 'round';
         circle.style.strokeDashoffset = pct;
         break;
     }
