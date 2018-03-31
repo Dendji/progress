@@ -4,7 +4,6 @@ const svgNS = 'http://www.w3.org/2000/svg';
 const required = () => {
   throw new Error('Progress component is missing parameter');
 };
-
 class Progress {
   // initializing properties in constructor
   // if containerId is empty then throw an Error
@@ -40,12 +39,17 @@ class Progress {
         this.animate(false);
         break;
       case 'animated':
-        this.animate(true);
+        this.animate(animated);
         break;
       case 'hidden':
         this.hide();
         break;
     }
+  }
+  hide() {
+    const { containerId } = this;
+    const svg = document.querySelector(`#${containerId} svg`);
+    svg.style.display = 'none';
   }
   // start and stop animation method
   getCircleDOM() {
@@ -56,7 +60,7 @@ class Progress {
     const { containerId } = this;
     const circle = this.getCircleDOM();
 
-    if (state) {
+    if (state === 'yes') {
       animateRequest(function(timePassed) {
         circle.style.transform = `rotate(${timePassed / 5}deg)`;
       });
@@ -65,12 +69,6 @@ class Progress {
         circle.style.transform = `rotate(${timePassed / 5}deg)`;
       }, 0);
     }
-  }
-  // hide progress bar method
-  hide() {
-    const { containerId } = this;
-    const svg = document.querySelector(`#${containerId} svg`);
-    svg.style.display = 'none';
   }
   setValue(value = 0) {
     const circle = this.getCircleDOM();

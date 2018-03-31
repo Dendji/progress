@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', app);
 
 function app() {
   let progress = new Progress('container');
+  console.log(progress);
 
   // TODO: validate only number
   function handleValue(event) {
@@ -20,7 +21,9 @@ function app() {
   inputValue.oninput = handleValue;
 
   switchAnimate.onchange = function(event) {
-    this.checked ? progress.setMod('animated') : progress.setMod('normal');
+    this.checked
+      ? progress.setMod('animated', 'yes')
+      : progress.setMod('animated', '');
     console.info(`switch animate is ${this.checked}`);
   };
   switchHide.onchange = function(event) {
