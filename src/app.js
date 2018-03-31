@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', app);
 function app() {
   let progress = new Progress('container');
   console.log(progress);
-
+  progress.setMod('normal');
   // TODO: validate only number
   function handleValue(event) {
     const value = parseInt(this.value);

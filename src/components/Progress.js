@@ -15,8 +15,47 @@ class Progress {
     this.circleLength = this.radius * Math.PI * 2;
     this.svgId = 'progress';
     this.outerCircleClass = 'progress-bar__circle--outer';
-
+    this.animated = '';
     this.init();
+  }
+  set _value(newValue) {
+    // check if value didn't change
+    if (newValue === this.value) {
+      return;
+    }
+
+    // if progress initialized then handle value
+    if (this.getCircleDOM()) {
+      const circle = this.getCircleDOM();
+      const { radius, circleLength } = this;
+
+      // get percentage from circle length
+      const percentage = (100 - newValue) / 100 * circleLength;
+      circle.style.strokeDashoffset = percentage;
+    }
+
+    this.value = newValue;
+  }
+  set _mode(newMode) {
+    // check if mode didn't change
+    if (newMode === this.mode) {
+      return;
+    }
+    const { containerId } = this;
+    const svg = document.querySelector(`#${containerId} svg`);
+    switch (newMode) {
+      case 'normal':
+        svg.style.display = 'block';
+        this.animate(false);
+        break;
+      case 'animated':
+        this.animate(this.animated);
+        break;
+      case 'hidden':
+        this.hide();
+        break;
+    }
+    this.mode = newMode;
   }
   init() {
     // creating progress bar and appending to DOM
@@ -30,21 +69,10 @@ class Progress {
     container.appendChild(svg);
   }
   // set mode method
+
   setMod(mode = 'normal', animated = '') {
-    const { containerId } = this;
-    const svg = document.querySelector(`#${containerId} svg`);
-    switch (mode) {
-      case 'normal':
-        svg.style.display = 'block';
-        this.animate(false);
-        break;
-      case 'animated':
-        this.animate(animated);
-        break;
-      case 'hidden':
-        this.hide();
-        break;
-    }
+    this.animated = animated;
+    this._mode = mode;
   }
   hide() {
     const { containerId } = this;
@@ -71,19 +99,12 @@ class Progress {
     }
   }
   setValue(value = 0) {
-    const circle = this.getCircleDOM();
-    const { radius, circleLength } = this;
-    // get percentage from circle length
-    const percentage = (100 - value) / 100 * circleLength;
-
-    circle.style.strokeDashoffset = percentage;
-
-    // change state
-    this.value = value;
+    this._value = value;
   }
   createCircle(type) {
     let circle = document.createElementNS(svgNS, 'circle');
     let { value, radius, circleLength } = this;
+
     let pct = (100 - value) / 100 * circleLength;
 
     // adding default style
