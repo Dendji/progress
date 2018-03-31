@@ -1,9 +1,12 @@
 const svgNS = 'http://www.w3.org/2000/svg';
+
+// detect empty parameters in functions
 const required = () => {
   throw new Error('Progress component is missing parameter');
 };
 
 class Progress {
+  // initializing properties in constructor
   constructor(containerId = required(), value = 10, mode = 'normal') {
     this.containerId = containerId;
     this.value = value;
@@ -83,12 +86,14 @@ class Progress {
     let { value, radius, circleLength } = this;
     let pct = (100 - value) / 100 * circleLength;
 
+    // adding default style
     circle.style.strokeDashoffset = 0;
     circle.style.transition = 'stroke-dashoffset .25s ease';
     circle.style.stroke = '#cccccc';
     circle.style.strokeWidth = '20px';
     circle.style.transformOrigin = 'center center';
 
+    // adding svg attributes
     circle.setAttributeNS(null, 'cx', 100);
     circle.setAttributeNS(null, 'cy', 100);
     circle.setAttributeNS(null, 'r', radius);
@@ -96,6 +101,7 @@ class Progress {
     circle.setAttributeNS(null, 'fill', 'transparent');
     circle.setAttributeNS(null, 'stroke-dashoffset', 100);
 
+    // depending on inner circle or outer circle modifying attributes and style
     switch (type) {
       case 'inner':
         circle.setAttributeNS(
@@ -115,21 +121,27 @@ class Progress {
         circle.style.strokeDashoffset = pct;
         break;
     }
-
     return circle;
   }
-
+  // create svg wrapper method
   createSvg() {
     let svg = document.createElementNS(svgNS, 'svg');
+    // setting SVG attributes
     svg.setAttributeNS(null, 'id', 'progress');
     svg.setAttributeNS(null, 'class', 'progress-bar');
     svg.setAttributeNS(null, 'width', '200');
     svg.setAttributeNS(null, 'height', '200');
     svg.setAttributeNS(null, 'version', '1.1');
     svg.setAttributeNS(null, 'viewPort', '0 0 100 100');
+
+    // we need it to start from 12 o'clock
+    // so rotate svg by 90 degress, because SVG's stroke starts at 3 o'clock
+    svg.style.transform = 'rotate(-90deg)';
+
     return svg;
   }
 }
+// request animation helper
 function animateRequest(draw, duration) {
   var start = performance.now();
 
