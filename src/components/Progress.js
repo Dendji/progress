@@ -1,34 +1,91 @@
+/** @module Progress
+ *  @author Denis Zuykov <dendjet@gmail.com>
+ */
+
 const svgNS = 'http://www.w3.org/2000/svg';
 
 // detect empty parameters in functions
 const required = () => {
   throw new Error('Progress component is missing parameter');
 };
+/** @constant {array} */
+const modes = ['normal', 'animated', 'hidden'];
+
+/** @constant {number} */
+const radius = 90;
+/** @constant {number} */
+const circleLength = radius * Math.PI * 2;
+/** @constant {number} */
+const animationPeriod = 1000;
+/** @constant {string} */
+const outerCircleClass = 'progress-bar__circle--outer';
+
+/** Class representing a progress bar. */
 class Progress {
-  // initializing properties in constructor
-  // if containerId is empty then throw an Error
+  /**
+   * Create a progress bar.
+   * @constructor
+   * @param {string} containerId - DOM container id to put progress bar in. If containerId is empty then throw an error.
+   * @param {number} value - Initial value for progress bar.
+   * @param {string} mode - Initial value for mode. Values are possible: normal, animated and hidden
+   */
   constructor(containerId = required(), value = 10, mode = 'normal') {
+    // check if contaienr exists in DOM
+    if (!document.getElementById(containerId)) {
+      throw new Error(`There is no element with id ${containerId} in DOM`);
+    }
+
+    // check if modes include parameter mode
+    if (!modes.includes(mode)) {
+      throw new Error(`List of modes includes only: normal, animated, hidden`);
+    }
+
+    // check if value is in specified interval
+    if (value < 0 || value > 100) value = 50;
+
     this.containerId = containerId;
     this.value = value;
     this.mode = mode;
-    this.radius = 90;
-    this.circleLength = this.radius * Math.PI * 2;
-    this.svgId = 'progress';
-    this.outerCircleClass = 'progress-bar__circle--outer';
     this.animated = '';
     this.init();
   }
-  set _value(newValue) {
-    // check if value didn't change
-    if (newValue === this.value) {
-      return;
+  // creating progress bar and appending to DOM
+  init() {
+    let container = document.getElementById(this.containerId);
+    let svg = createSvg();
+    let innerCircle = createCircle('inner', this.value);
+    let outerCircle = createCircle('outer', this.value);
+
+    svg.appendChild(innerCircle);
+    svg.appendChild(outerCircle);
+    container.appendChild(svg);
+  }
+  /**
+   * New value setter
+   * @param {number} newValue - Value from 0 to 100.
+   * @return {boolean} True if number is correct
+   */
+  setValue(value = 0) {
+    // check if value is in specified interval
+    if (value < 0 || value > 100) {
+      return false;
     }
-
+    // check if value didn't change or mode is animated or hidden
+    if (value === this.value || this.mode !== 'normal') {
+      return false;
+    }
+    // check if number is digit
+    if (!value.match(/\d+/g)) {
+      return false;
+    }
+    this._value = value;
+    return true;
+  }
+  // value setter
+  set _value(newValue) {
     // if progress initialized then handle value
-    if (this.getCircleDOM()) {
-      const circle = this.getCircleDOM();
-      const { radius, circleLength } = this;
-
+    if (this.circleDOM) {
+      const circle = this.circleDOM;
       // get percentage from circle length
       const percentage = (100 - newValue) / 100 * circleLength;
       circle.style.strokeDashoffset = percentage;
@@ -36,146 +93,134 @@ class Progress {
 
     this.value = newValue;
   }
-  set _mode(newMode) {
-    // check if mode didn't change
-    if (newMode === this.mode) {
-      return;
-    }
+
+  /**
+   * set Progress bar mode
+   * @param {string} mode - Normal, amimated or hidden.
+   * @param {string} animated - Yes or empty value
+   * @return {number} A circle length.
+   */
+  setMod(mode = 'normal', animated = '') {
+    this.mode = mode;
+    this.animated = animated;
     const { containerId } = this;
     const svg = document.querySelector(`#${containerId} svg`);
-    switch (newMode) {
+
+    switch (mode) {
       case 'normal':
         svg.style.display = 'block';
-        this.animate(false);
+        stopAnimation(this.circleDOM);
         break;
       case 'animated':
-        this.animate(this.animated);
+        animated === 'yes'
+          ? startAnimation(this.circleDOM, animationPeriod)
+          : stopAnimation(this.circleDOM);
         break;
       case 'hidden':
-        this.hide();
+        hide(this.containerId);
         break;
     }
-    this.mode = newMode;
   }
-  init() {
-    // creating progress bar and appending to DOM
-    let container = document.getElementById(this.containerId);
-    let svg = this.createSvg();
-    let innerCircle = this.createCircle('inner');
-    let outerCircle = this.createCircle('outer');
-
-    svg.appendChild(innerCircle);
-    svg.appendChild(outerCircle);
-    container.appendChild(svg);
-  }
-  // set mode method
-
-  setMod(mode = 'normal', animated = '') {
-    this.animated = animated;
-    this._mode = mode;
-  }
-  hide() {
+  // get circle DOM object
+  get circleDOM() {
     const { containerId } = this;
-    const svg = document.querySelector(`#${containerId} svg`);
-    svg.style.display = 'none';
-  }
-  // start and stop animation method
-  getCircleDOM() {
-    const { containerId, outerCircleClass } = this;
     return document.querySelector(`#${containerId} .${outerCircleClass}`);
   }
-  animate(state) {
-    const { containerId } = this;
-    const circle = this.getCircleDOM();
-
-    if (state === 'yes') {
-      animateRequest(function(timePassed) {
-        circle.style.transform = `rotate(${timePassed / 5}deg)`;
-      });
-    } else {
-      animateRequest(function(timePassed) {
-        circle.style.transform = `rotate(${timePassed / 5}deg)`;
-      }, 0);
-    }
-  }
-  setValue(value = 0) {
-    this._value = value;
-  }
-  createCircle(type) {
-    let circle = document.createElementNS(svgNS, 'circle');
-    let { value, radius, circleLength } = this;
-
-    let pct = (100 - value) / 100 * circleLength;
-
-    // adding default style
-    circle.style.strokeDashoffset = 0;
-    circle.style.transition = 'stroke-dashoffset .25s ease';
-    circle.style.stroke = '#cccccc';
-    circle.style.strokeWidth = '20px';
-    circle.style.transformOrigin = 'center center';
-
-    // adding svg attributes
-    circle.setAttributeNS(null, 'cx', 100);
-    circle.setAttributeNS(null, 'cy', 100);
-    circle.setAttributeNS(null, 'r', radius);
-    circle.setAttributeNS(null, 'stroke-dasharray', circleLength);
-    circle.setAttributeNS(null, 'fill', 'transparent');
-    circle.setAttributeNS(null, 'stroke-dashoffset', 100);
-
-    // depending on inner circle or outer circle modifying attributes and style
-    switch (type) {
-      case 'inner':
-        circle.setAttributeNS(
-          null,
-          'class',
-          'progress-bar__circle progress-bar__circle--inner'
-        );
-        break;
-      case 'outer':
-        circle.setAttributeNS(
-          null,
-          'class',
-          'progress-bar__circle progress-bar__circle--outer'
-        );
-        circle.style.stroke = '#ffdb4d';
-        circle.style.strokeLinecap = 'round';
-        circle.style.strokeDashoffset = pct;
-        break;
-    }
-    return circle;
-  }
-  // create svg wrapper method
-  createSvg() {
-    let svg = document.createElementNS(svgNS, 'svg');
-    // setting SVG attributes
-    svg.setAttributeNS(null, 'id', 'progress');
-    svg.setAttributeNS(null, 'class', 'progress-bar');
-    svg.setAttributeNS(null, 'width', '200');
-    svg.setAttributeNS(null, 'height', '200');
-    svg.setAttributeNS(null, 'version', '1.1');
-    svg.setAttributeNS(null, 'viewPort', '0 0 100 100');
-
-    // we need it to start from 12 o'clock
-    // so rotate svg by 90 degress, because SVG's stroke starts at 3 o'clock
-    svg.style.transform = 'rotate(-90deg)';
-
-    return svg;
-  }
 }
-// request animation helper
-function animateRequest(draw, duration) {
-  var start = performance.now();
-
-  requestAnimationFrame(function animate(time) {
-    var timePassed = time - start;
-
-    if (timePassed > duration) timePassed = duration;
-
-    draw(timePassed);
-
-    // if (timePassed < duration) {
-    requestAnimationFrame(animate);
-    // }
-  });
+// hide method
+function hide(containerId) {
+  const svg = document.querySelector(`#${containerId} svg`);
+  svg.style.display = 'none';
 }
+// create circle as DOM element
+function createCircle(type, value) {
+  let circle = document.createElementNS(svgNS, 'circle');
+
+  let percentage = (100 - value) / 100 * circleLength;
+
+  // adding default style
+  circle.style.strokeDashoffset = 0;
+  circle.style.transition = 'stroke-dashoffset .25s ease';
+  circle.style.stroke = '#cccccc';
+  circle.style.strokeWidth = '20px';
+  circle.style.transformOrigin = 'center center';
+
+  // adding svg attributes
+  circle.setAttributeNS(null, 'cx', 100);
+  circle.setAttributeNS(null, 'cy', 100);
+  circle.setAttributeNS(null, 'r', radius);
+  circle.setAttributeNS(null, 'stroke-dasharray', circleLength);
+  circle.setAttributeNS(null, 'fill', 'transparent');
+  circle.setAttributeNS(null, 'stroke-dashoffset', 100);
+
+  // depending on inner circle or outer circle modifying attributes and style
+  switch (type) {
+    case 'inner':
+      circle.setAttributeNS(
+        null,
+        'class',
+        'progress-bar__circle progress-bar__circle--inner'
+      );
+      break;
+    case 'outer':
+      circle.setAttributeNS(
+        null,
+        'class',
+        'progress-bar__circle progress-bar__circle--outer'
+      );
+      circle.style.stroke = '#ffdb4d';
+      circle.style.strokeLinecap = 'round';
+      circle.style.strokeDashoffset = percentage;
+      break;
+  }
+  return circle;
+}
+// create svg method
+function createSvg() {
+  let svg = document.createElementNS(svgNS, 'svg');
+  // setting SVG attributes
+  svg.setAttributeNS(null, 'id', 'progress');
+  svg.setAttributeNS(null, 'class', 'progress-bar');
+  svg.setAttributeNS(null, 'width', '200');
+  svg.setAttributeNS(null, 'height', '200');
+  svg.setAttributeNS(null, 'version', '1.1');
+  svg.setAttributeNS(null, 'viewPort', '0 0 100 100');
+
+  // we need it to start from 12 o'clock
+  // so rotate svg by 90 degress, because circle's stroke starts at 3 o'clock
+  svg.style.transform = 'rotate(-90deg)';
+
+  return svg;
+}
+
+// set reqId that needed for canceling animation
+// reqId is updated every frame
+let reqId = null;
+
+// starting animation
+function startAnimation(circle, period) {
+  const getProgress = ({ elapsed, total }) => Math.min(elapsed / total, 1);
+  let time = {
+    start: performance.now(),
+    total: period
+  };
+
+  const tick = now => {
+    time.elapsed = now - time.start;
+    const progress = getProgress(time);
+
+    circle.style.transform = `rotate(${360 * progress}deg)`;
+    if (progress == 1) time.start = now;
+    reqId = requestAnimationFrame(tick);
+  };
+
+  reqId = requestAnimationFrame(tick);
+}
+// stop animation
+function stopAnimation(circle) {
+  circle.style.transform = `rotate(0deg)`;
+  cancelAnimationFrame(reqId);
+}
+
+/** Export Progress class. */
 export default Progress;

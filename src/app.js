@@ -23,7 +23,7 @@ function app() {
   switchAnimate.onchange = function(event) {
     this.checked
       ? progress.setMod('animated', 'yes')
-      : progress.setMod('animated', '');
+      : progress.setMod('normal');
     console.info(`switch animate is ${this.checked}`);
   };
   switchHide.onchange = function(event) {
