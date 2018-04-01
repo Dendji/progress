@@ -95,7 +95,7 @@ class Progress {
   }
 
   /**
-   * set Progress bar mode
+   * Set Progress bar mode.
    * @param {string} mode - Normal, amimated or hidden.
    * @param {string} animated - Yes or empty value
    * @return {number} A circle length.
@@ -108,8 +108,9 @@ class Progress {
 
     switch (mode) {
       case 'normal':
-        svg.style.display = 'block';
+        // svg.style.display = 'block';
         stopAnimation(this.circleDOM);
+        show(this.containerId);
         break;
       case 'animated':
         animated === 'yes'
@@ -127,15 +128,22 @@ class Progress {
     return document.querySelector(`#${containerId} .${outerCircleClass}`);
   }
 }
+// show method
+function show(containerId) {
+  const svg = document.querySelector(`#${containerId} svg`);
+  scaleInOut(svg, 1000, 'in');
+}
 // hide method
 function hide(containerId) {
   const svg = document.querySelector(`#${containerId} svg`);
-  svg.style.display = 'none';
+  scaleInOut(svg, 1000, 'out');
 }
+
 // create circle as DOM element
 function createCircle(type, value) {
   let circle = document.createElementNS(svgNS, 'circle');
 
+  // git filled percantage based on current value
   let percentage = (100 - value) / 100 * circleLength;
 
   // adding default style
@@ -175,6 +183,7 @@ function createCircle(type, value) {
   }
   return circle;
 }
+
 // create svg method
 function createSvg() {
   let svg = document.createElementNS(svgNS, 'svg');
@@ -220,6 +229,31 @@ function startAnimation(circle, period) {
 function stopAnimation(circle) {
   circle.style.transform = `rotate(0deg)`;
   cancelAnimationFrame(reqId);
+}
+
+function scaleInOut(circle, period, direction) {
+  const getProgress = ({ elapsed, total }) => Math.min(elapsed / total, 1);
+  let time = {
+    start: performance.now(),
+    total: period
+  };
+  const easeOutElastic = progress =>
+    Math.pow(2, -10 * progress) * Math.sin((progress - 0.1) * 5 * Math.PI) + 1;
+
+  const tick = now => {
+    time.elapsed = now - time.start;
+    const progress = getProgress(time);
+    const value = easeOutElastic(progress);
+    if (direction === 'in') {
+      circle.style.transform = `scale(${value})`;
+    } else if (direction === 'out') {
+      circle.style.transform = `scale(${1 - value})`;
+    }
+    if (progress == 1) return;
+    requestAnimationFrame(tick);
+  };
+
+  requestAnimationFrame(tick);
 }
 
 /** Export Progress class. */
