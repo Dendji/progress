@@ -206,54 +206,59 @@ function createSvg() {
 // reqId is updated every frame
 let reqId = null;
 
-// starting animation
+const getProgress = ({ elapsed, total }) => Math.min(elapsed / total, 1);
+// starting spin animation
 function startAnimation(circle, period) {
-  const getProgress = ({ elapsed, total }) => Math.min(elapsed / total, 1);
   let time = {
     start: performance.now(),
     total: period
   };
 
-  const tick = now => {
+  const draw = now => {
     time.elapsed = now - time.start;
     const progress = getProgress(time);
 
     circle.style.transform = `rotate(${360 * progress}deg)`;
     if (progress == 1) time.start = now;
-    reqId = requestAnimationFrame(tick);
+    reqId = requestAnimationFrame(draw);
   };
 
-  reqId = requestAnimationFrame(tick);
+  reqId = requestAnimationFrame(draw);
 }
-// stop animation
+// stop spin animation
 function stopAnimation(circle) {
-  circle.style.transform = `rotate(0deg)`;
+  circle.style.transform = `rotate(-90deg)`;
   cancelAnimationFrame(reqId);
 }
 
-function scaleInOut(circle, period, direction) {
-  const getProgress = ({ elapsed, total }) => Math.min(elapsed / total, 1);
+// scale in out animation
+function scaleInOut(circle, duration, direction) {
   let time = {
     start: performance.now(),
-    total: period
+    total: duration
   };
+  // easing function
   const easeOutElastic = progress =>
     Math.pow(2, -10 * progress) * Math.sin((progress - 0.1) * 5 * Math.PI) + 1;
 
-  const tick = now => {
+  const draw = now => {
     time.elapsed = now - time.start;
     const progress = getProgress(time);
     const value = easeOutElastic(progress);
+
+    // depend on animation direction apply transform
     if (direction === 'in') {
       circle.style.transform = `scale(${value})`;
     } else if (direction === 'out') {
       circle.style.transform = `scale(${1 - value})`;
     }
+    // if animation is 100% then return
     if (progress == 1) return;
-    requestAnimationFrame(tick);
+    // go to next frame
+    requestAnimationFrame(draw);
   };
 
-  requestAnimationFrame(tick);
+  requestAnimationFrame(draw);
 }
 
 /** Export Progress class. */
