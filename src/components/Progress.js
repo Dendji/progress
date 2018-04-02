@@ -148,7 +148,7 @@ function createCircle(type, value) {
 
   // adding default style
   circle.style.strokeDashoffset = 0;
-  circle.style.transition = 'stroke-dashoffset .25s ease';
+  circle.style.transition = 'stroke-dashoffset .5s ease';
   circle.style.stroke = '#cccccc';
   circle.style.strokeWidth = '20px';
   circle.style.transformOrigin = 'center center';
