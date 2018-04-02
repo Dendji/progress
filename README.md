@@ -13,3 +13,15 @@ npm install
 ```
 npm run dev
 ```
+
+## Build for development
+
+```
+npm run build:dev
+```
+
+## Build for production
+
+```
+npm run build:prod
+```
