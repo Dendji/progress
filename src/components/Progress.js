@@ -13,10 +13,13 @@ const modes = ['normal', 'animated', 'hidden'];
 
 /** @constant {number} */
 const radius = 90;
+
 /** @constant {number} */
 const circleLength = radius * Math.PI * 2;
+
 /** @constant {number} */
 const animationPeriod = 1000;
+
 /** @constant {string} */
 const outerCircleClass = 'progress-bar__circle--outer';
 
@@ -26,8 +29,8 @@ class Progress {
    * Create a progress bar.
    * @constructor
    * @param {string} containerId - DOM container id to put progress bar in. If containerId is empty then throw an error.
-   * @param {number} value - Initial value for progress bar.
-   * @param {string} mode - Initial value for mode. Values are possible: normal, animated and hidden
+   * @param {number} value - Initial value of percentage for progress bar.
+   * @param {string} mode - Initial value for mode. Values are possible: normal, animated and hidden.
    */
   constructor(containerId = required(), value = 10, mode = 'normal') {
     // check if contaienr exists in DOM
@@ -41,7 +44,7 @@ class Progress {
     }
 
     // check if value is in specified interval
-    if (value < 0 || value > 100) value = 50;
+    if (value < 0 || value > 100) value = 100;
 
     this.containerId = containerId;
     this.value = value;
@@ -103,12 +106,9 @@ class Progress {
   setMod(mode = 'normal', animated = '') {
     this.mode = mode;
     this.animated = animated;
-    const { containerId } = this;
-    const svg = document.querySelector(`#${containerId} svg`);
 
     switch (mode) {
       case 'normal':
-        // svg.style.display = 'block';
         stopAnimation(this.circleDOM);
         show(this.containerId);
         break;
@@ -257,7 +257,7 @@ function scaleInOut(circle, duration, direction) {
     // go to next frame
     requestAnimationFrame(draw);
   };
-
+  //start animation
   requestAnimationFrame(draw);
 }
 
